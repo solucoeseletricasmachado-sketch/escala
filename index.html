@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1d1f">
+<title>Escala 2x2x3</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dd; --off:#eeece7;
+    --A:#2f6fdf; --B:#d9822b; --C:#1f9e6e; --D:#b03fa8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#121214; --card:#1e1e21; --ink:#f2f2f2; --muted:#9a9aa0; --line:#2e2e33; --off:#26262a; }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .wrap{max-width:560px;margin:0 auto;padding:14px 12px 28px}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{font-size:1.2rem;margin:0}
+  .icon-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}
+  .letters{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
+  .pill{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 0;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer}
+  .pill[aria-pressed="true"]{color:#fff;border-color:transparent}
+  .pill.A[aria-pressed="true"]{background:var(--A)} .pill.B[aria-pressed="true"]{background:var(--B)}
+  .pill.C[aria-pressed="true"]{background:var(--C)} .pill.D[aria-pressed="true"]{background:var(--D)}
+  .pill.ALL[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+  .status{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+  .status .big{font-size:1.15rem;font-weight:700}
+  .status .small{color:var(--muted);font-size:.88rem;margin-top:3px}
+  .month{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;touch-action:pan-y}
+  .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .mhead h2{font-size:1.1rem;margin:0}
+  .nav{border:none;background:var(--off);color:var(--ink);width:40px;height:40px;border-radius:12px;font-size:1.3rem;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .dow{font-size:.7rem;color:var(--muted);text-align:center;font-weight:700;padding-bottom:2px}
+  .day{aspect-ratio:1/1.05;border-radius:9px;padding:4px;background:var(--off);font-size:.78rem;display:flex;flex-direction:column;justify-content:space-between}
+  .day.empty{background:transparent}
+  .day.before{opacity:.35}
+  .day .n{font-weight:700;font-size:.9rem}
+  .day.today{outline:2.5px solid var(--ink);outline-offset:-2.5px}
+  .chips{display:flex;gap:2px;flex-wrap:wrap}
+  .chip{font-size:.66rem;font-weight:800;color:#fff;border-radius:4px;padding:0 4px;line-height:1.35}
+  .chip.A{background:var(--A)} .chip.B{background:var(--B)} .chip.C{background:var(--C)} .chip.D{background:var(--D)}
+  .day.work{color:#fff} .day.work.A{background:var(--A)} .day.work.B{background:var(--B)} .day.work.C{background:var(--C)} .day.work.D{background:var(--D)}
+  .tag{font-size:.6rem;font-weight:700;letter-spacing:.02em}
+  .day:not(.work) .tag{color:var(--muted)}
+  .msum{display:flex;justify-content:space-around;margin-top:10px;font-size:.85rem;color:var(--muted)}
+  .msum b{color:var(--ink);font-size:1rem}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:10px;font-size:.8rem;color:var(--muted)}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:-1px;margin-right:4px}
+  .day.hol .n{color:#e0352b}
+  .day.work.hol .n{color:#fff;text-decoration:underline;text-decoration-thickness:2px}
+  .day.hol{box-shadow:inset 0 0 0 2px #e0352b}
+  .hols{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
+  .hols .h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem}
+  .hols .h .d{font-weight:700;color:#e0352b;min-width:44px}
+  .hols .h .nm{flex:1}
+  .hols .h .opt{color:var(--muted);font-size:.75rem}
+  .badge{font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--off);color:var(--muted)}
+  .badge.w{color:#fff}
+  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .sheet.open{display:flex}
+  .panel{background:var(--card);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+  .panel h3{margin:0 0 6px}
+  .note{font-size:.86rem;color:var(--muted);line-height:1.45}
+  .cycle{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:10px 0}
+  .cycle div{text-align:center;font-size:.7rem;padding:4px 0;border-radius:6px;background:var(--off)}
+  .cycle div.t{background:var(--ink);color:var(--bg);font-weight:700}
+  .row{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-size:.9rem}
+  select,input[type=date]{font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+  .btns{display:flex;gap:8px;margin-top:14px}
+  .btns button{flex:1}
+  .primary{background:var(--ink)!important;color:var(--bg)!important;border-color:transparent!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Escala 2x2x3</h1>
+    <div style="display:flex;gap:6px">
+      <button class="icon-btn" id="todayBtn">Hoje</button>
+      <button class="icon-btn" id="cfgBtn" aria-label="Ajustes">⚙︎</button>
+    </div>
+  </header>
+
+  <div class="letters" role="group" aria-label="Letra">
+    <button class="pill ALL" data-l="ALL">Todas</button>
+    <button class="pill A" data-l="A">A</button>
+    <button class="pill B" data-l="B">B</button>
+    <button class="pill C" data-l="C">C</button>
+    <button class="pill D" data-l="D">D</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="month" id="month">
+    <div class="mhead">
+      <button class="nav" id="prev" aria-label="Mês anterior">‹</button>
+      <h2 id="mtitle"></h2>
+      <button class="nav" id="next" aria-label="Próximo mês">›</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="msum" id="msum"></div>
+    <div class="hols" id="hols"></div>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h3>Ajustes da escala</h3>
+    <p class="note">Ciclo de 14 dias: trabalha 2, folga 2, trabalha 3, folga 2, trabalha 2, folga 3. Escolha a data de início e em que dia do ciclo cada letra está nessa data.</p>
+    <div class="cycle" id="cycle"></div>
+    <div class="row"><label for="startIn">Data de início da escala</label><input type="date" id="startIn"></div>
+    <div id="cfg"></div>
+    <div class="btns">
+      <button class="icon-btn" id="reset">Padrão</button>
+      <button class="icon-btn primary" id="close">Pronto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PATTERN=[1,1,0,0,1,1,1,0,0,1,1,0,0,0];
+const LETTERS=['A','B','C','D'];
+const DEF={start:'2026-12-14',off:{A:1,B:8,C:3,D:10}};
+const DOW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const DAY=86400000;
+
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+let cfg=load('escala_cfg',JSON.parse(JSON.stringify(DEF)));
+let sel=load('escala_letter','ALL');
+const today=new Date();today.setHours(0,0,0,0);
+let view=new Date(today.getFullYear(),today.getMonth(),1);
+
+function startDate(){const[y,m,d]=cfg.start.split('-').map(Number);return new Date(y,m-1,d);}
+function utc(d){return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());}
+function started(d){return utc(d)>=utc(startDate());}
+function works(L,d){const n=Math.round((utc(d)-utc(startDate()))/DAY);return PATTERN[((n+cfg.off[L]-1)%14+14)%14]===1;}
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);return new Date(y,Math.floor((h+l-7*m+114)/31)-1,((h+l-7*m+114)%31)+1);}
+const HCACHE={};
+function holidays(y){
+  if(HCACHE[y])return HCACHE[y];
+  const E=easter(y),add=n=>new Date(E.getTime()+n*DAY+3600000);
+  const L=[[new Date(y,0,1),'Confraternização Universal'],[add(-48),'Carnaval (segunda)',1],[add(-47),'Carnaval (terça)',1],[add(-2),'Paixão de Cristo'],
+    [new Date(y,3,21),'Tiradentes'],[new Date(y,4,1),'Dia do Trabalho'],[add(60),'Corpus Christi',1],[new Date(y,8,7),'Independência do Brasil'],
+    [new Date(y,9,12),'N. Sra. Aparecida'],[new Date(y,10,2),'Finados'],[new Date(y,10,15),'Proclamação da República'],[new Date(y,10,20),'Consciência Negra'],[new Date(y,11,25),'Natal']];
+  const map={};L.forEach(([d,n,o])=>{d=new Date(d.getFullYear(),d.getMonth(),d.getDate());map[utc(d)]={d,n,o:!!o};});
+  return HCACHE[y]=map;
+}
+function hol(d){return holidays(d.getFullYear())[utc(d)];}
+function fmt(d,o){return d.toLocaleDateString('pt-BR',o);}
+
+function render(){
+  document.querySelectorAll('.pill').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===sel));
+  // status
+  const st=document.getElementById('status');
+  if(!started(today)){
+    st.innerHTML=`<div class="big">A escala começa em ${fmt(startDate(),{day:'2-digit',month:'long'})}</div><div class="small">${sel==='ALL'?'Escolha sua letra para ver seus dias.':(works(sel,startDate())?'Sua letra começa trabalhando nesse dia.':'Sua letra começa de folga nesse dia.')}</div>`;
+  } else if(sel==='ALL'){
+    const t=LETTERS.filter(L=>works(L,today));
+    st.innerHTML=`<div class="big">Hoje trabalham: ${t.map(L=>`<span class="chip ${L}" style="font-size:.9rem;padding:1px 6px">${L}</span>`).join(' ')}</div><div class="small">Toque numa letra para ver só a sua.</div>`;
+  } else {
+    const w=works(sel,today); let n=null;
+    for(let i=1;i<30;i++){const d=new Date(today.getTime()+i*DAY);if(works(sel,d)!==w){n=d;break;}}
+    st.innerHTML=`<div class="big">Letra ${sel}: hoje é ${w?'dia de trabalho':'folga'}</div><div class="small">${w?'Próxima folga':'Volta ao trabalho'}: ${n?fmt(n,{weekday:'long',day:'2-digit',month:'2-digit'}):'—'}</div>`;
+  }
+  const HT=hol(today);if(HT)st.innerHTML+=`<div class="small" style="color:#e0352b;font-weight:600">Hoje é feriado: ${HT.n}</div>`;
+  // month
+  const y=view.getFullYear(),m=view.getMonth();
+  const mn=fmt(view,{month:'long'});document.getElementById('mtitle').textContent=mn.charAt(0).toUpperCase()+mn.slice(1)+' '+y;
+  const g=document.getElementById('grid');g.innerHTML='';
+  DOW.forEach(x=>{const e=document.createElement('div');e.className='dow';e.textContent=x;g.appendChild(e);});
+  for(let i=0;i<new Date(y,m,1).getDay();i++){const e=document.createElement('div');e.className='day empty';g.appendChild(e);}
+  const last=new Date(y,m+1,0).getDate();let wk=0,off=0;
+  for(let dd=1;dd<=last;dd++){
+    const d=new Date(y,m,dd),c=document.createElement('div');c.className='day';
+    if(utc(d)===utc(today))c.classList.add('today');
+    const H=hol(d);if(H){c.classList.add('hol');c.title=H.n;}
+    let h=`<span class="n">${dd}</span>`;
+    if(!started(d))c.classList.add('before');
+    else if(sel==='ALL'){h+='<div class="chips">'+LETTERS.filter(L=>works(L,d)).map(L=>`<span class="chip ${L}">${L}</span>`).join('')+'</div>';}
+    else if(works(sel,d)){c.classList.add('work',sel);h+='<span class="tag">TRAB.</span>';wk++;}
+    else{h+='<span class="tag">FOLGA</span>';off++;}
+    c.innerHTML=h;g.appendChild(c);
+  }
+  document.getElementById('msum').innerHTML=sel==='ALL'?'':`<span><b>${wk}</b> trabalho</span><span><b>${off}</b> folgas</span>`;
+  const hs=Object.values(holidays(y)).filter(h=>h.d.getMonth()===m).sort((a,b)=>a.d-b.d);
+  document.getElementById('hols').style.display=hs.length?'':'none';
+  document.getElementById('hols').innerHTML=hs.map(h=>{
+    let right='';
+    if(!started(h.d))right='<span class="badge">antes da escala</span>';
+    else if(sel==='ALL')right='<span class="chips">'+LETTERS.filter(L=>works(L,h.d)).map(L=>`<span class="chip ${L}">${L}</span>`).join('')+'</span>';
+    else right=works(sel,h.d)?`<span class="badge w" style="background:var(--${sel})">trabalho</span>`:'<span class="badge">folga</span>';
+    return `<div class="h"><span class="d">${String(h.d.getDate()).padStart(2,'0')}/${String(m+1).padStart(2,'0')}</span><span class="nm">${h.n}${h.o?' <span class="opt">(ponto facultativo)</span>':''}</span>${right}</div>`;
+  }).join('');
+  document.getElementById('legend').innerHTML=sel==='ALL'
+    ?LETTERS.map(L=>`<span><i class="sw" style="background:var(--${L})"></i>${L}</span>`).join('')
+    :`<span><i class="sw" style="background:var(--${sel})"></i>Trabalho</span><span><i class="sw" style="background:var(--off);border:1px solid var(--line)"></i>Folga</span>`;
+  document.getElementById('legend').innerHTML+='<span><i class="sw" style="box-shadow:inset 0 0 0 2px #e0352b"></i>Feriado nacional</span>';
+}
+
+function renderCfg(){
+  document.getElementById('cycle').innerHTML=PATTERN.map((p,i)=>`<div class="${p?'t':''}">${i+1}<br>${p?'T':'F'}</div>`).join('');
+  document.getElementById('startIn').value=cfg.start;
+  const box=document.getElementById('cfg');box.innerHTML='';
+  LETTERS.forEach(L=>{
+    const r=document.createElement('div');r.className='row';
+    r.innerHTML=`<label><b style="color:var(--${L})">Letra ${L}</b> na data de início está no dia:</label>`;
+    const s=document.createElement('select');
+    for(let i=1;i<=14;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i} do ciclo (${PATTERN[i-1]?'trabalho':'folga'})`;if(i===cfg.off[L])o.selected=true;s.appendChild(o);}
+    s.onchange=()=>{cfg.off[L]=+s.value;save('escala_cfg',cfg);render();};
+    r.appendChild(s);box.appendChild(r);
+  });
+}
+
+document.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{sel=b.dataset.l;save('escala_letter',sel);render();});
+document.getElementById('prev').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render();};
+document.getElementById('next').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render();};
+document.getElementById('todayBtn').onclick=()=>{view=new Date(today.getFullYear(),today.getMonth(),1);render();};
+const sheet=document.getElementById('sheet');
+document.getElementById('cfgBtn').onclick=()=>{renderCfg();sheet.classList.add('open');};
+document.getElementById('close').onclick=()=>sheet.classList.remove('open');
+sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove('open');};
+document.getElementById('startIn').onchange=e=>{if(e.target.value){cfg.start=e.target.value;save('escala_cfg',cfg);render();}};
+document.getElementById('reset').onclick=()=>{cfg=JSON.parse(JSON.stringify(DEF));save('escala_cfg',cfg);renderCfg();render();};
+// deslizar para trocar de mês
+let sx=null;const mo=document.getElementById('month');
+mo.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+mo.addEventListener('touchend',e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)document.getElementById(dx<0?'next':'prev').click();sx=null;});
+
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+</script>
+</body>
+</html>
